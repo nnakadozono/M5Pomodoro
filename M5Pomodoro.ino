@@ -11,6 +11,7 @@
 #define RUN 1
 #define CONTINUE 2
 #define BREAK 3
+#define SLEEP 4
 #define STOP 9
 
 uint32_t targetTime = 0;  // for next 1 second timeout
@@ -165,7 +166,17 @@ void loop() {
     }
     displayreset();
   }
-
+  if (M5.Axp.GetBtnPress()==2) {
+    if(s==READY) {
+      s = SLEEP;
+      //M5.Axp.SetSleep();
+      M5.Axp.ScreenBreath(0); 
+    }else if (s==SLEEP){
+      s = READY;
+      M5.Axp.ScreenBreath(8); 
+    }
+  }
+  
   if (s == RUN || s == BREAK) {  
     if (targetTime < millis()) {
       // Set next update for 1 second later
