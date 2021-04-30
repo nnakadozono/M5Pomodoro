@@ -18,6 +18,8 @@ uint32_t targetTime = 0;  // for next 1 second timeout
 int8_t mm = 25, ss = 0;
 float pmm = 25;
 byte omm = 99, oss = 99;
+int internalss = 0;
+int maxinternalss = 60*5;
 
 uint32_t colorbg, colortext;
 
@@ -39,7 +41,8 @@ void settimer(int8_t p){
   } else if (p == 2) {
     mm = 60; ss = 0;
   } else if (p == -1) {
-    mm =  0; ss = 15;
+    //mm =  0; ss = 15;
+    mm = 12; ss = 0;
   }
   pmm = mm;
 }
@@ -52,7 +55,8 @@ void setbreaktimer(int8_t p){
   } else if (p == 2) {
     mm = 15; ss = 0;
   } else if (p == -1) {
-    mm =  0; ss = 7;
+    //mm =  0; ss = 7;
+    mm =  3; ss = 0;
   }
   pmm = mm;
 }
@@ -109,6 +113,14 @@ void displayreset(){
 
 }
 
+void reminder_beep(){
+  // Adjust the time values by adding 1 second
+  internalss++;              // Advance second
+  if (internalss == maxinternalss+1) {  // Check for roll-over
+    internalss = 0;          // Reset seconds to zero
+    M5.Beep.beep();
+  }
+}
 
 //////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -216,6 +228,14 @@ void loop() {
         mm++;            // Advance minute
       }
       displaytime(); 
+      reminder_beep();
+    }    
+  } else if (s == READY) {
+    if (targetTime < millis()) {
+      // Set next update for 1 second later
+      targetTime = millis() + 1000;
+      
+      reminder_beep();
     }    
   }
 }
